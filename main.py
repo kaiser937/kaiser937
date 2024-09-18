@@ -18,9 +18,9 @@ def post_tarea_2(prenda:Tarea_2):
 def get_tarea_3():
     return {"Reliquias": ["Calavera de cristal", "Arca de Noé"]}
 
-#class Tarea_3(BaseModel):
-    #Reliquia:str
+class Tarea_3(BaseModel):
+    Reliquia:str
 
 @app.get("/tarea-3")
-def post_tarea_3({"Reliquia": "Hojas de Tesla"}):
+def post_tarea_3({"Reliquia":Tarea_3}):
     return {"Estado": "OK", "Reliquia": "Hojas de Tesla", "Actuales": ["Calavera de cristal", "Arca de Noé", "Hojas de Tesla"]}
