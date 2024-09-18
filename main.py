@@ -22,5 +22,5 @@ class Tarea_3(BaseModel):
     Reliquia:str
 
 @app.get("/tarea-3")
-def post_tarea_3({"Reliquia":Tarea_3}):
+def post_tarea_3({Reliquia:Tarea_3}):
     return {"Estado": "OK", "Reliquia": "Hojas de Tesla", "Actuales": ["Calavera de cristal", "Arca de Noé", "Hojas de Tesla"]}
