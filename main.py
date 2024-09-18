@@ -19,7 +19,7 @@ def get_tarea_3():
     return {"Reliquias": ["Calavera de cristal", "Arca de Noé"]}
 
 class Tarea_3(BaseModel):
-    Reliquia:str
+    Reliquia:"Hojas de Tesla"
 
 @app.get("/tarea-3")
 def post_tarea_3(reliquia:Tarea_3):
