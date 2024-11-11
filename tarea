@@ -1,0 +1,160 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List, Optional
+
+app = FastAPI()
+
+@app.get("/tarea-1")
+async def read_tarea_1():
+    return {"respuesta": "Primer tarea realizada"}
+
+class Tarea_2(BaseModel):
+    Prenda:str
+
+@app.post("/tarea-2")
+def post_tarea_2(prenda:Tarea_2):
+    return {"Respuesta": "Prenda agregada: Camisa"}
+
+@app.get("/tarea-3")
+def get_tarea_3():
+    return {"Reliquias": ["Calavera de cristal", "Arca de Noé"]}
+
+class Tarea_3(BaseModel):
+    Reliquia:str
+
+@app.post("/tarea-3")
+def post_tarea_3(Reliquia:Tarea_3):
+    return {"Estado": "OK", "Reliquia": "Hojas de Tesla", "Actuales": ["Calavera de cristal", "Arca de Noé", "Hojas de Tesla"]}
+
+class Tarea_4(BaseModel):
+    Libro: str
+
+@app.put("/tarea-4")
+async def put_tarea_4(libro: LibroModel):
+    return {"Actualizado": libro.Libro}
+
+class Frase(BaseModel):
+    Frase: str
+
+@app.post("/tarea-5")
+async def evaluar_frase(frase: FraseModel):
+    frase2=frase.replace(" ","")
+    frase3=frase2.lower()
+    longitud=len(frase3)
+    palindromo=texto == texto[::-1]
+    return return {
+        "Palíndromo": palindromo,
+        "Longitud": longitud}
+
+peliculas = [
+    {"id": "a1s2d3", "nombre": "El código enigma", "calificacion": 5.0},
+    {"id": "3e4r5t", "nombre": "Red social", "calificacion": 4.5},
+    {"id": "0o9i8u", "nombre": "Jobs", "calificacion": 4.0},
+    {"id": "5t6r3y", "nombre": "Matrix", "calificacion": 4.7},
+    {"id": "5t6r4y", "nombre": "Matrix Recargado", "calificacion": 4.2},
+    {"id": "3t6r3y", "nombre": "Matrix Revoluciones", "calificacion": 4.8},
+]
+
+class Pelicula(BaseModel):
+    id: str
+    nombre: str
+    calificacion: float
+
+@app.get("/tarea-6")
+def obtener_peliculas():
+    return peliculas
+
+@app.get("/tarea-6/id")
+def obtener_pelicula(id: str):
+    if id=="a1s2d3":
+        return {"id": "a1s2d3", "nombre": "El código enigma", "calificacion": 5.0}
+    elif id=="3e4r5t":
+        return {"id": "3e4r5t", "nombre": "Red social", "calificacion": 4.5}
+    elif id=="0o9i8u":
+        return {"id": "0o9i8u", "nombre": "Jobs", "calificacion": 4.0}
+    elif id=="5t6r3y":
+        return {"id": "5t6r3y", "nombre": "Matrix", "calificacion": 4.7}
+    elif id=="5t6r4y":
+        return {"id": "5t6r4y", "nombre": "Matrix Recargado", "calificacion": 4.2}
+    elif id=="3t6r3y":
+        return {"id": "3t6r3y", "nombre": "Matrix Revoluciones", "calificacion": 4.8}
+    
+@app.post("/tarea-6")
+def agregar_pelicula(pelicula: Pelicula):
+    peliculas.append(pelicula)
+    return {pelicula, "Modificados": 1}
+
+@app.patch("/tarea-6/{id}/{calificacion}")
+def actualizar_calificacion(id: str, calificacion: float):
+    pelicula=p for p in peliculas if p['id'] == id
+    pelicula['calificacion'] = calificacion
+    return pelicula
+
+@app.delete("/tarea-6/{id}")
+def borrar_pelicula(id: str):
+    p for p in peliculas if p['id'] == id
+    peliculas.remove(pelicula)
+    return { "Status": "Borrado"}
+
+
+
+
+
+from fastapi import FastAPI, HTTPException
+from sqlalchemy import create_engine, Column, Integer, Float, String
+from pydantic import BaseModel
+from typing import List, Optional
+
+DATABASE_URL =  "postgresql+psycopg2://postgres.mmabvmvokyuisoebirrt:[YOUR-PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgre"
+engine = create_engine(DATABASE_URL)
+
+class Utiles(Base):
+    __tablename__ = "utiles"
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(100))
+    cantidad = Column(Integer)
+    precio = Column(Float)
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+class Util(BaseModel):
+    id: int
+    nombre: str
+    cantidad: int
+    precio: float
+
+class ListaUtil(BaseModel):
+    lista: List[Util]
+
+@app.get("/tarea-7", response_model=List[Util])
+def get_utiles(cantidad: Optional[int] = None, precio: Optional[float] = None):
+    db = SessionLocal()
+    query = db.query(Utiles)
+
+    if cantidad is not None:
+        query = query.filter(Utiles.cantidad >= cantidad)
+    if precio is not None:
+        query = query.filter(Utiles.precio >= precio)
+
+    utiles = query.all()
+    db.close()
+    return utiles
+
+@app.get("/tarea-7{id}", response_model=Util)
+def get_util(id: int):
+    db = SessionLocal()
+    util = db.query(Utiles).filter(Utiles.id == id).first()
+    db.close()
+    if util is None:
+        raise HTTPException(status_code=404, detail="Util no encontrado")
+    return util
+
+@app.post("/tarea-7")
+def get_utiles(lista: ListaUtil):
+    db = SessionLocal()
+    for util in lista.lista:
+        new_util = Utiles(**util.dict())
+        db.add(new_util)
+    return {"success": True}
